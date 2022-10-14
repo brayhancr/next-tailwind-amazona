@@ -12,36 +12,29 @@ import Moment from 'moment';
 function reducer(state, action) {
   switch (action.type) {
     case 'FETCH_REQUEST':
-      console.log('fetch request: ', { state, action });
       return { ...state, loading: true, error: '' };
     case 'FETCH_SUCCESS':
-      console.log('fetch success: ', { state, action });
       return { ...state, loading: false, order: action.payload, error: '' };
     case 'FETCH_FAIL':
-      console.log('fetch fail: ', { state, action });
       return { ...state, loading: false, error: action.payload };
     case 'PAY_REQUEST':
-      console.log('pay request: ', { state, action });
       return {
         ...state,
         loadingPay: true,
       };
     case 'PAY_SUCCESS':
-      console.log('pay success: ', { state, action });
       return {
         ...state,
         loadingPay: false,
         successPay: true,
       };
     case 'PAY_FAIL':
-      console.log('pay fail: ', { state, action });
       return {
         ...state,
         loadingPay: false,
         errorPay: action.payload,
       };
     case 'PAY_RESET':
-      console.log('pay reset: ', { state, action });
       return {
         ...state,
         loadingPay: false,
@@ -79,7 +72,7 @@ const OrderScreen = () => {
     if (!order._id || successPay || (order._id && order._id !== orderId)) {
       fetchOrder();
       if (successPay) {
-        dispatch({ tytpe: 'PAY_RESET' });
+        dispatch({ type: 'PAY_RESET' });
       }
     } else {
       const loadPaypalScript = async () => {
@@ -113,20 +106,18 @@ const OrderScreen = () => {
       .create({
         purchase_units: [{ amount: { value: totalPrice } }],
       })
-      .then((orderID) => {
-        return orderID;
-      });
+      .then((orderID) => orderID);
   }
 
   function onApprove(data, actions) {
     return actions.order.capture().then(async function (details) {
       try {
-        dispatch({ tytpe: 'PAY_REQUEST' });
+        dispatch({ type: 'PAY_REQUEST' });
         const { data } = await axios.put(
           `/api/orders/${order._id}/pay`,
           details
         );
-        dispatch({ tytpe: 'PAY_SUCCESS', payload: data });
+        dispatch({ type: 'PAY_SUCCESS', payload: data });
         toast.success('Order is paid successfully');
       } catch (error) {
         dispatch({ type: 'PAY_FAIL', payload: getError(error) });
