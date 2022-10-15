@@ -74,11 +74,11 @@ const ProductScreen = (props) => {
             <div className="mb-2 flex justify-between">
               <div>Status</div>
               <div
-              // className={`${
-              //   product.countInStock > 0
-              //     ? 'bg-green-600 text-white font-semibold rounded-2xl px-2 py-1'
-              //     : 'bg-red-600 text-white font-semibold rounded-2xl px-2 py-1'
-              // }`}
+                className={`${
+                  product.countInStock > 0
+                    ? 'text-green-700 font-bold'
+                    : 'text-red-700 font-bold'
+                }`}
               >
                 {product.countInStock > 0 ? 'In Stock' : 'Unavailable'}
               </div>

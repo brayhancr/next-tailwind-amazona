@@ -1,40 +1,35 @@
-import Link from 'next/link';
 import { signIn, useSession } from 'next-auth/react';
-import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
-import Layout from '../components/Layout';
-import { getError } from '../utils/error';
-import { useRouter } from 'next/router';
+import React, { useEffect } from 'react';
 import axios from 'axios';
+import { getError } from '../utils/error';
+import Layout from '../components/Layout';
 
-const LoginScreen = () => {
+const ProfileScreen = () => {
   const { data: session } = useSession();
-  const router = useRouter();
-  const { redirect } = router.query;
-
-  useEffect(() => {
-    if (session?.user) {
-      router.push(redirect || '/');
-    }
-  }, [redirect, router, session]);
-
   const {
     register,
     handleSubmit,
     getValues,
+    setValue,
     formState: { errors },
   } = useForm();
 
+  useEffect(() => {
+    setValue('name', session.user.name);
+    setValue('email', session.user.email);
+  }, [session.user, setValue]);
+
   const submitHandler = async ({ name, email, password }) => {
     try {
-      await axios.post('/api/auth/signup', { name, email, password });
+      await axios.put('/api/auth/update', { name, email, password });
       const result = await signIn('credentials', {
         redirect: false,
-        name,
         email,
         password,
       });
+      toast.success('Profile updated successfully');
       if (result.error) {
         toast.error(result.error);
       }
@@ -42,13 +37,14 @@ const LoginScreen = () => {
       toast.error(getError(error));
     }
   };
+
   return (
-    <Layout title="Create Account">
+    <Layout title="Profile">
       <form
-        className="mx-auto max-w-screen-md"
         onSubmit={handleSubmit(submitHandler)}
+        className="mx-auto max-w-screen-md"
       >
-        <h1 className="mb-4 text-xl font-semibold">Create Account</h1>
+        <h1 className="mb-4 text-xl font-semibold">Update Profile</h1>
         <div className="mb-4">
           <label htmlFor="name">Name</label>
           <input
@@ -125,17 +121,12 @@ const LoginScreen = () => {
             )}
         </div>
         <div className="mb-4">
-          <button className="primary-button">Register</button>
-        </div>
-        <div className="mb-4 gap-x-1">
-          {/* <span className="mr-1">Don&apos;t have an account?</span>
-          <Link href={`/register?redirect=${redirect || '/'}`}>Register</Link> */}
-          <span className="mr-1">Already have an account?</span>
-          <Link href={`/login?redirect=${redirect || '/'}`}>Login</Link>
+          <button className="primary-button">Update Profile</button>
         </div>
       </form>
     </Layout>
   );
 };
 
-export default LoginScreen;
+ProfileScreen.auth = true;
+export default ProfileScreen;

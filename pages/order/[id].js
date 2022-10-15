@@ -122,6 +122,7 @@ const OrderScreen = () => {
       } catch (error) {
         dispatch({ type: 'PAY_FAIL', payload: getError(error) });
         toast.error(getError(error));
+        console.log(getError(error));
       }
     });
   }
